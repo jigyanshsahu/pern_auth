@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db.js';
+import { protect } from '../middleware/auth.js';
   
 
 const router = express.Router();
@@ -19,8 +20,8 @@ const cookieOptions = {
 
  //register
  router.post('/register', async (req,res)=>{
-    const  {username,email,password}  = req.body;
-    if(!username||!email|| !password){
+    const  {name,email,password}  = req.body;
+    if(!name||!email|| !password){
         return res.status(400).json({message: 'please requied all the field    '})
     }
 
@@ -30,10 +31,10 @@ const cookieOptions = {
    }
    const hashedPassword = await bcrypt.hash(password,10);
    const newUser = await pool.query(
-    'INSERT INTO users (username,email,password) VALUES ($1, $2, $3) RETURNING id,name,email',
-    [username,email,hashedPassword]
+    'INSERT INTO users (name,email,password) VALUES ($1, $2, $3) RETURNING id,name,email',
+    [name,email,hashedPassword]
    );
-   const token = generateToken(newUser.row[0].id);
+   const token = generateToken(newUser.rows[0].id);
    res.cookie('token', token , cookieOptions);
 
     return res.status(201).json({user:newUser.rows[0] });
@@ -59,7 +60,7 @@ router.post('login', async(req,res)=>{
     res.cookie('token',token,cookieOptions);
     res.json({user: {
         id: userData.id,
-        username: userData.username,
+        name: userData.name,
         email: userData.email,
     }}); 
 
@@ -67,7 +68,7 @@ router.post('login', async(req,res)=>{
 
 
 // ME
-  router.get('/me',async (req,res)=>{
+  router.get('/me', protect, async (req,res)=>{
     res.json(req.user);
     // return info of the loggined user
   })
