@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import NotFound from "./components/Notfound";
 import {
   BrowserRouter as Router,
   Routes,
@@ -52,7 +53,7 @@ const App = () => {
             user ? <Navigate to="/" replace /> : <Register setuser={setuser} />
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
