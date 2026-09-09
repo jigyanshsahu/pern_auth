@@ -10,10 +10,11 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+
 axios.defaults.withCredentials = true;
+
 const App = () => {
   const [user, setuser] = useState(null);
-  const [error, seterror] = useState("");
   const [loading, setloading] = useState(true);
 
   useEffect(() => {
@@ -29,16 +30,29 @@ const App = () => {
     };
     fetchuser();
   }, []);
-if(loading){
-  return <div>loading...</div>
-}
+
+  if (loading) {
+    return <div className="loading-screen">Loading application...</div>;
+  }
+
   return (
     <Router>
-      <Navbar />
+      <Navbar user={user} setuser={setuser} />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Home user={user} />} />
+        <Route
+          path="/login"
+          element={
+            user ? <Navigate to="/" replace /> : <Login setuser={setuser} />
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            user ? <Navigate to="/" replace /> : <Register setuser={setuser} />
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
